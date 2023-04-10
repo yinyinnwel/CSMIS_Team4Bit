@@ -1,0 +1,169 @@
+CREATE USER 'CSMS'@'localhost' IDENTIFIED BY 'CSMS';
+
+GRANT ALL PRIVILEGES ON * . * TO 'CSMS'@'localhost';
+
+ALTER USER 'CSMS'@'localhost' IDENTIFIED WITH mysql_native_password BY 'CSMS';
+
+//--------------------------------------------
+
+CREATE SCHEMA `catering_service_management_system` ;
+
+//----------------------------------------------
+
+CREATE TABLE `staff` (
+  `staff_id` varchar(45) NOT NULL,
+  `username` varchar(45) DEFAULT NULL,
+  `door_log_no` varchar(15) DEFAULT NULL,
+  `enabled` bit(1) DEFAULT b'1',
+  `password` varchar(100) DEFAULT NULL,
+  `role` varchar(15) DEFAULT 'EMPLOYEE',
+  PRIMARY KEY (`staff_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+insert into staff values ('00-00001','Admin','11111',1,'$2a$10$hSbL0Kmw7q9kXaNX7lhos.q9m9YQm/HQ8p5zGYyrJrS2FGtiwtczK','ROLE_ADMIN');
+
+CREATE TABLE `staff_detail` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `division` varchar(15) DEFAULT NULL,
+  `department` varchar(100) DEFAULT NULL,
+  `team` varchar(100) DEFAULT NULL,
+  `email` varchar(45) DEFAULT NULL,
+  `email_noti` bit(1) DEFAULT b'1',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` varchar(45) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `updated_by` varchar(45) DEFAULT NULL,
+  `staff_id` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `staff_id` (`staff_id`),
+  CONSTRAINT `staff_detail_ibfk_1` FOREIGN KEY (`staff_id`) REFERENCES `staff` (`staff_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=531 DEFAULT CHARSET=latin1;
+
+insert into staff_detail values (1,null,null,null,null,1,null,null,null,null,'00-00001');
+
+
+CREATE TABLE `avoid_meat` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `description` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `staff_id` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `staff_id` (`staff_id`),
+  CONSTRAINT `avoid_meat_ibfk_1` FOREIGN KEY (`staff_id`) REFERENCES `staff` (`staff_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=531 DEFAULT CHARSET=latin1;
+
+insert into avoid_meat values (1,null,null,null,'00-00001');
+
+CREATE TABLE `restaurant` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) DEFAULT NULL,
+  `address` varchar(100) DEFAULT NULL,
+  `phone_no` varchar(15) DEFAULT NULL,
+  `email` varchar(45) DEFAULT NULL,
+  `receiver` varchar(45) DEFAULT NULL,
+  `status` bit(1) DEFAULT b'1',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` varchar(45) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `updated_by` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+
+
+CREATE TABLE `restaurant_comment` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `comment` varchar(200) DEFAULT NULL,
+  `comment_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `restaurant_id` int DEFAULT NULL,
+  `staff_id` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `restaurant_id` (`restaurant_id`),
+  KEY `staff_id` (`staff_id`),
+  CONSTRAINT `restaurant_comment_ibfk_1` FOREIGN KEY (`restaurant_id`) REFERENCES `restaurant` (`id`),
+  CONSTRAINT `restaurant_comment_ibfk_2` FOREIGN KEY (`staff_id`) REFERENCES `staff` (`staff_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `cost` (
+  `cost_id` varchar(15) NOT NULL DEFAULT 'csc001',
+  `company_cost` int DEFAULT '0',
+  `staff_cost` int DEFAULT '0',
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `updated_by` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`cost_id`),
+  KEY `updated_by` (`updated_by`),
+  CONSTRAINT `cost_ibfk_1` FOREIGN KEY (`updated_by`) REFERENCES `staff` (`staff_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+CREATE TABLE `avoid_meat_list` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) DEFAULT NULL,
+  `status` bit(1) DEFAULT b'1',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` varchar(100) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `updated_by` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `holidays` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `date` date DEFAULT NULL,
+  `holiday` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=246 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `lunch_register` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `registered_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `register_for` timestamp NULL DEFAULT NULL,
+  `updated_date` timestamp NULL DEFAULT NULL,
+  `register_status` varchar(100) DEFAULT NULL,
+  `staff_id` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `staff_id_idx` (`staff_id`),
+  CONSTRAINT `staff_id` FOREIGN KEY (`staff_id`) REFERENCES `staff` (`staff_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
+
+
+CREATE TABLE `all_have_lunch` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `staff_id` varchar(45) NOT NULL,
+  `name` varchar(100) DEFAULT NULL,
+  `door_log_no` varchar(15) NOT NULL,
+  `date_time` timestamp NULL DEFAULT NULL,
+  `company_cost` int DEFAULT NULL,
+  `staff_cost` int DEFAULT NULL,
+  `restaurant_id` int DEFAULT NULL,
+  `register` tinyint DEFAULT NULL,
+  `status` tinyint DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=latin1;
+
+
+CREATE TABLE `invoice` (
+  `voucher_no` varchar(45) NOT NULL,
+  `restaurant_id` int DEFAULT NULL,
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
+  `payment_date` date DEFAULT NULL,
+  `actual_count` int DEFAULT NULL,
+  `registered_count` int DEFAULT NULL,
+  `company_cost` double DEFAULT NULL,
+  `staff_cost` double DEFAULT NULL,
+  `total_company_cost` double DEFAULT NULL,
+  `total_staff_cost` double DEFAULT NULL,
+  `total_amount` double DEFAULT NULL,
+  `cashier` varchar(100) DEFAULT NULL,
+  `receiver` varchar(100) DEFAULT NULL,
+  `approver` varchar(100) DEFAULT NULL,
+  `payment_method` varchar(45) DEFAULT NULL,
+  `status` tinyint DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `created_by` varchar(100) DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `updated_by` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`voucher_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
